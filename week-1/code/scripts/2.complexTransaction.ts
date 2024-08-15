@@ -82,7 +82,6 @@ import { explorerURL, printConsoleSeparator } from "@/lib/helpers";
    * try changing the order of the instructions inside of the message above...
    * see what happens :)
    */
-
   // create a versioned transaction using the message
   const tx = new VersionedTransaction(message);
 
