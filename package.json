@@ -1,0 +1,8 @@
+{
+  "name": "solana-bootcamp-autumn-2024",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/TranSiTien/solana-bootcamp-autumn-2024.git",
+  "author": "<tientransidh@gmail.com>",
+  "license": "MIT"
+}
