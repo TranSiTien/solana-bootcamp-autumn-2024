@@ -3,10 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.explorerURL = explorerURL;
+exports.explorerURL = void 0;
 const web3_js_1 = require("@solana/web3.js");
 const fs_1 = __importDefault(require("fs"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const spl_token_1 = require("@solana/spl-token");
+const state_1 = require("@solana/spl-token/lib/types/state");
+const mpl_token_metadata_1 = require("@metaplex-foundation/mpl-token-metadata");
+const instructions_1 = require("@solana/spl-token/lib/types/instructions");
 function explorerURL({ address, txSignature, cluster, }) {
     let baseUrl;
     //
@@ -21,6 +25,7 @@ function explorerURL({ address, txSignature, cluster, }) {
     url.searchParams.append("cluster", cluster || "devnet");
     return url.toString() + "\n";
 }
+exports.explorerURL = explorerURL;
 // Utility function to log errors and return a boolean indicating success
 function logError(message, error) {
     console.error(message, error?.message || "");
@@ -45,34 +50,56 @@ function loadKeypairFromFile(absPath) {
         return null;
     }
 }
-// Function to create and send a transaction with all instructions
-async function createAndSendTransaction(connection, payer, targetPublicKey) {
+async function createMintAccountTransaction(connection, payer, targetPublicKey) {
     try {
-        const space = 0;
+        const tokenConfig = {
+            // define how many decimals we want our tokens to have
+            decimals: 6,
+            //
+            name: "Mublab Token",
+            //
+            symbol: "MLT",
+            //
+            description: "A token for MubLAB",
+            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matlab_Logo.png/670px-Matlab_Logo.png",
+            uri: "https://github.com/TranSiTien/solana-bootcamp-autumn-2024/blob/main/week-2/assignment/assets/MLT-token.json",
+        };
+        const space = state_1.MINT_SIZE;
         const balanceForRentExemption = await connection.getMinimumBalanceForRentExemption(space);
-        const newAccount = new web3_js_1.Keypair();
-        let estimateRemainBalanceInNewAccount = balanceForRentExemption + 0.1 * web3_js_1.LAMPORTS_PER_SOL;
+        const mintKeypair = web3_js_1.Keypair.generate();
         // Instruction to create a new account
-        const createNewAccountIx = web3_js_1.SystemProgram.createAccount({
+        const createMintAccountInstruction = web3_js_1.SystemProgram.createAccount({
             fromPubkey: payer.publicKey,
-            newAccountPubkey: newAccount.publicKey,
-            lamports: balanceForRentExemption + 0.1 * web3_js_1.LAMPORTS_PER_SOL,
+            newAccountPubkey: mintKeypair.publicKey,
+            lamports: balanceForRentExemption,
             space,
-            programId: web3_js_1.SystemProgram.programId,
+            programId: spl_token_1.TOKEN_PROGRAM_ID,
         });
-        estimateRemainBalanceInNewAccount -= 0.1 * web3_js_1.LAMPORTS_PER_SOL;
-        // Instruction to transfer SOL to the target wallet
-        const transferToTargetWalletIx = web3_js_1.SystemProgram.transfer({
-            fromPubkey: payer.publicKey,
-            toPubkey: targetPublicKey,
-            lamports: 0.1 * web3_js_1.LAMPORTS_PER_SOL,
-        });
-        const remainingLamports = await connection.getBalance(newAccount.publicKey);
-        // Instruction to close the new account
-        const closeNewAccountIx = web3_js_1.SystemProgram.transfer({
-            fromPubkey: newAccount.publicKey,
-            toPubkey: payer.publicKey,
-            lamports: estimateRemainBalanceInNewAccount,
+        const initializeMintInstruction = (0, instructions_1.createInitializeMint2Instruction)(mintKeypair.publicKey, tokenConfig.decimals, payer.publicKey, payer.publicKey);
+        const metadataAccount = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("metadata"), mpl_token_metadata_1.PROGRAM_ID.toBuffer(), mintKeypair.publicKey.toBuffer()], mpl_token_metadata_1.PROGRAM_ID)[0];
+        // Create the Metadata account for the Mint 
+        const createMetadataInstruction = (0, mpl_token_metadata_1.createCreateMetadataAccountV3Instruction)({
+            metadata: metadataAccount,
+            mint: mintKeypair.publicKey,
+            mintAuthority: payer.publicKey,
+            payer: payer.publicKey,
+            updateAuthority: payer.publicKey,
+        }, {
+            createMetadataAccountArgsV3: {
+                data: {
+                    creators: null,
+                    name: tokenConfig.name,
+                    symbol: tokenConfig.symbol,
+                    uri: tokenConfig.uri,
+                    sellerFeeBasisPoints: 0,
+                    collection: null,
+                    uses: null,
+                },
+                // `collectionDetails` - for non-nft type tokens, normally set to `null` to not have a value set
+                collectionDetails: null,
+                // should the metadata be updatable?
+                isMutable: true,
+            },
         });
         // Get the latest blockhash for the transaction
         const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
@@ -80,15 +107,15 @@ async function createAndSendTransaction(connection, payer, targetPublicKey) {
         const message = new web3_js_1.TransactionMessage({
             payerKey: payer.publicKey,
             recentBlockhash,
-            instructions: [createNewAccountIx, transferToTargetWalletIx, closeNewAccountIx],
+            instructions: [createMintAccountInstruction, initializeMintInstruction, createMetadataInstruction],
         }).compileToV0Message();
         const tx = new web3_js_1.VersionedTransaction(message);
-        tx.sign([payer, newAccount]);
+        tx.sign([payer, mintKeypair]);
         const signature = await connection.sendTransaction(tx);
         return signature;
     }
     catch (error) {
-        logError("Failed to create, send, close transaction:", error);
+        logError("Failed to create min account:", error);
         return null;
     }
 }
@@ -129,7 +156,7 @@ async function main() {
     try {
         const balance = await connection.getBalance(keypairPayer.publicKey);
         console.log("Current balance of 'payer' (in lamports):", balance);
-        const signature = await createAndSendTransaction(connection, keypairPayer, targetWalletPublicKey);
+        const signature = await createMintAccountTransaction(connection, keypairPayer, targetWalletPublicKey);
         if (signature) {
             console.log("Transaction successfully sent.");
             console.log("Explorer URL:", explorerURL({ txSignature: signature }));

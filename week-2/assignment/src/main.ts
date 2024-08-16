@@ -9,11 +9,10 @@ import {
 } from "@solana/web3.js";
 import fs from "fs";
 import dotenv from "dotenv";
-import { MINT_SIZE, TOKEN_PROGRAM_ID, createInitializeMint2Instruction } from '@solana/spl-token';
-import {
-  PROGRAM_ID as METADATA_PROGRAM_ID,
-  createCreateMetadataAccountV3Instruction,
-} from "@metaplex-foundation/mpl-token-metadata";
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { MINT_SIZE } from "@solana/spl-token/lib/types/state";
+import { createCreateMetadataAccountV3Instruction, PROGRAM_ID as METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
+import { createInitializeMint2Instruction } from "@solana/spl-token/lib/types/instructions";
 
 export function explorerURL({
   address,
@@ -61,7 +60,7 @@ function loadKeypairFromFile(absPath: string): Keypair | null {
   }
 }
 
-async function createAndSendTransaction(
+async function createMintAccountTransaction(
   connection: Connection,
   payer: Keypair,
   targetPublicKey: PublicKey
@@ -77,7 +76,7 @@ async function createAndSendTransaction(
       //
       description: "A token for MubLAB",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matlab_Logo.png/670px-Matlab_Logo.png",
-      uri: "https://mublab.io",
+      uri: "https://github.com/TranSiTien/solana-bootcamp-autumn-2024/blob/main/week-2/assignment/assets/MLT-token.json",
     };
     const space = MINT_SIZE;
     const balanceForRentExemption = await connection.getMinimumBalanceForRentExemption(space);
@@ -91,7 +90,6 @@ async function createAndSendTransaction(
       space,
       programId: TOKEN_PROGRAM_ID,
     });
-
     const initializeMintInstruction = createInitializeMint2Instruction(
       mintKeypair.publicKey,
       tokenConfig.decimals,
@@ -103,8 +101,7 @@ async function createAndSendTransaction(
       [Buffer.from("metadata"), METADATA_PROGRAM_ID.toBuffer(), mintKeypair.publicKey.toBuffer()],
       METADATA_PROGRAM_ID,
     )[0];
-
-      // Create the Metadata account for the Mint
+      // Create the Metadata account for the Mint 
   const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
     {
       metadata: metadataAccount,
@@ -139,16 +136,16 @@ async function createAndSendTransaction(
     const message = new TransactionMessage({
       payerKey: payer.publicKey,
       recentBlockhash,
-      instructions: [createNewAccountIx, transferToTargetWalletIx, closeNewAccountIx],
+      instructions: [createMintAccountInstruction, initializeMintInstruction, createMetadataInstruction],
     }).compileToV0Message();
 
     const tx = new VersionedTransaction(message);
-    tx.sign([payer, newAccount]);
+    tx.sign([payer, mintKeypair]);
 
     const signature = await connection.sendTransaction(tx);
     return signature;
   } catch (error) {
-    logError("Failed to create, send, close transaction:", error as Error);
+    logError("Failed to create min account:", error as Error);
     return null;
   }
 }
@@ -200,7 +197,7 @@ async function main() {
     const balance = await connection.getBalance(keypairPayer.publicKey);
     console.log("Current balance of 'payer' (in lamports):", balance);
 
-    const signature = await createAndSendTransaction(connection, keypairPayer, targetWalletPublicKey);
+    const signature = await createMintAccountTransaction(connection, keypairPayer, targetWalletPublicKey);
     if (signature) {
       console.log("Transaction successfully sent.");
       console.log("Explorer URL:", explorerURL({ txSignature: signature }));
