@@ -63,6 +63,7 @@ function loadKeypairFromFile(absPath: string): Keypair | null {
 async function createMintAccountTransaction(
   connection: Connection,
   payer: Keypair,
+  targetPublicKey: PublicKey
 ): Promise<string | null> {
   try {
     const tokenConfig = {
@@ -140,11 +141,33 @@ async function createMintAccountTransaction(
   );
 
     // Mint instruction
-    const mintToInstruction = createMintToInstruction(
+    const mintToPayerInstruction = createMintToInstruction(
       mintKeypair.publicKey,
       ataAddress,
       payer.publicKey,
       100 * Math.pow(10, tokenConfig.decimals)
+    );
+
+        // Create the associated token account for the target wallet if it doesn't exist
+        const ataTargetAddress = await getAssociatedTokenAddress(
+          mintKeypair.publicKey,
+          targetPublicKey
+        );
+    
+        const ataTargetInstruction = createAssociatedTokenAccountInstruction(
+          payer.publicKey,
+          ataTargetAddress,
+          targetPublicKey,
+          mintKeypair.publicKey
+        );
+
+
+    // Mint instruction to the target wallet
+    const mintToTargetInstruction = createMintToInstruction(
+      mintKeypair.publicKey,
+      ataTargetAddress,
+      payer.publicKey,
+      10 * Math.pow(10, tokenConfig.decimals)
     );
     // Get the latest blockhash for the transaction
     const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
@@ -154,7 +177,7 @@ async function createMintAccountTransaction(
       payerKey: payer.publicKey,
       recentBlockhash,
       instructions: [createMintAccountInstruction, initializeMintInstruction, createMetadataInstruction,
-        ataInstruction, mintToInstruction
+        ataInstruction, mintToPayerInstruction,ataTargetInstruction, mintToTargetInstruction
       ],
     }).compileToV0Message();
 
@@ -208,11 +231,14 @@ async function main() {
   checkBalanceAndRequestAirdrop(connection, keypairPayer);
   console.log("Payer address:", keypairPayer.publicKey.toBase58());
 
+  const targetWalletAddress = process.env.TARGET_WALLET_ADDRESS || "";
+  const targetWalletPublicKey = new PublicKey(targetWalletAddress);
+
   try {
     const balance = await connection.getBalance(keypairPayer.publicKey);
     console.log("Current balance of 'payer' (in lamports):", balance);
 
-    const signature = await createMintAccountTransaction(connection, keypairPayer);
+    const signature = await createMintAccountTransaction(connection, keypairPayer, targetWalletPublicKey);
     if (signature) {
       console.log("Transaction successfully sent.");
       console.log("Explorer URL:", explorerURL({ txSignature: signature }));
