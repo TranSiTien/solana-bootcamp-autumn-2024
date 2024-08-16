@@ -127,16 +127,6 @@ async function createMintAccountTransaction(
       },
     },
   );
-  const amountOfTokensToMint = 1_000_000; // 1 * 10**6
-
-  // mint some token to the "ata"
-
-  // const ata = await getOrCreateAssociatedTokenAccount(
-  //   connection,
-  //   payer,
-  //   mintKeypair.publicKey,
-  //   payer.publicKey
-  // );
   
   const ataAddress = await getAssociatedTokenAddress(
     mintKeypair.publicKey,
