@@ -75,7 +75,7 @@ async function createMintAccountTransaction(
       //
       description: "A token for MubLAB",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matlab_Logo.png/670px-Matlab_Logo.png",
-      uri: "https://github.com/TranSiTien/solana-bootcamp-autumn-2024/blob/main/week-2/assignment/assets/MLT-token.json",
+      uri: "https://github.com/TranSiTien/solana-bootcamp-autumn-2024/blob/main/week-2/code/assets/MLT-token.json",
     };
     const space = MINT_SIZE;
     const balanceForRentExemption = await connection.getMinimumBalanceForRentExemption(space);
