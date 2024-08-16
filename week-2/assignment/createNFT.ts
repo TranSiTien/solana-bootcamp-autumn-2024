@@ -16,12 +16,12 @@ const nftMetadata = {
   name: "MubKang",
   symbol: "MBK",
   description: "MubKang NFT",
-  image: "https://github.com/TranSiTien/solana-bootcamp-autumn-2024/blob/main/week-2/assignment/assets/NFTImg.png",
+  image: "https://raw.githubusercontent.com/TranSiTien/solana-bootcamp-autumn-2024/main/week-2/assignment/assets/NFTImg.png",
   attributes: [
     { trait_type: "Category", value: "Art" },
     { trait_type: "Edition", value: "First" },
   ],
-  sellerFeeBasisPoints: 500, // 5% royalty
+  sellerFeeBasisPoints: 1000, // 10% royalty
 };
 
 // Utility function to construct explorer URL

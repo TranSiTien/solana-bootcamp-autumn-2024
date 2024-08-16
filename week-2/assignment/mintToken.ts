@@ -18,7 +18,7 @@ const tokenConfig = {
   name: "Mublab Token",
   symbol: "MLT",
   description: "A token for MubLAB",
-  image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matlab_Logo.png/670px-Matlab_Logo.png",
+  image: "https://raw.githubusercontent.com/TranSiTien/solana-bootcamp-autumn-2024/main/week-2/assignment/assets/NFTImg.png",
   uri: "https://github.com/TranSiTien/solana-bootcamp-autumn-2024/blob/main/week-2/assignment/assets/MLT-token.json",
 };
 
