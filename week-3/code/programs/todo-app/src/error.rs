@@ -10,4 +10,7 @@ pub enum AppError {
 
     #[msg("Invalid authority")]
     InvalidAuthority,
+
+    #[msg("Todo is already completed")]
+    TodoAlreadyCompleted,
 }

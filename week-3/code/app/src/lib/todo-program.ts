@@ -9,7 +9,7 @@ export default class TodoProgram {
 
   constructor(provider: AnchorProvider, cluster: Cluster = "devnet") {
     this.provider = provider;
-    this.program = new Program(IDL, getProgramId(cluster), provider);
+    this.program = new Program(IDL, getProgramId("devnet"), provider);
   }
 
   createProfile(name: string) {
@@ -75,4 +75,8 @@ export default class TodoProgram {
       todoPdas.map((pda) => this.program.account.todo.fetch(pda))
     );
   }
+
+  
+    
+
 }

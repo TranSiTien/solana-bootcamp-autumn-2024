@@ -47,6 +47,12 @@ pub mod todo_app {
     }
 
     pub fn toggle_todo(_ctx: Context<ToggleTodo>) -> Result<()> {
+        let todo = &mut ctx.accounts.todo;
+        if todo.completed {
+            return Err(ErrorCode::TodoAlreadyCompleted.into());
+        }
+        todo.completed = true;
+        
         Ok(())
     }
 }
@@ -92,4 +98,12 @@ pub struct CreateTodo<'info> {
 }
 
 #[derive(Accounts)]
-pub struct ToggleTodo {}
+pub struct ToggleTodo {
+    #[account(mut)]
+    creator: Signer<'info>,
+
+    #[account(mut)]
+    pub todo: ProgramAccount<'info, Todo>,
+
+    system_program: Program<'info, System>,
+}

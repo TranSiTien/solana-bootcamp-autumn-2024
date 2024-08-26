@@ -4,9 +4,11 @@ import {
   useConnection,
   useWallet,
 } from "@solana/wallet-adapter-react";
+import { Connection } from "@solana/web3.js";
 
 export default function useAnchorProvider() {
-  const { connection } = useConnection();
+  const rpcUrl = "https://api.devnet.solana.com";
+  const connection = new Connection(rpcUrl, 'confirmed');
   const wallet = useWallet();
 
   return new AnchorProvider(connection, wallet as AnchorWallet, {
