@@ -191,182 +191,85 @@ BN.prototype.sqrt = function sqrt() {
         })
         .rpc().catch(e => console.error(e));
   
-    //   console.log("Create pool success signature", createPoolTx);
+      console.log("Create pool success signature", createPoolTx);
   
-    //   depisitorLPAccount = getAssociatedTokenAddressSync(
-    //     mintLiquidityPda,
-    //     depositor.publicKey,
-    //     true
-    //   );
+      depisitorLPAccount = getAssociatedTokenAddressSync(
+        mintLiquidityPda,
+        depositor.publicKey,
+        true
+      );
   
-    //   depisitorMintAAccount = getAssociatedTokenAddressSync(
-    //     mintAKp.publicKey,
-    //     depositor.publicKey,
-    //     false
-    //   );
+      depisitorMintAAccount = getAssociatedTokenAddressSync(
+        mintAKp.publicKey,
+        depositor.publicKey,
+        false
+      );
   
-    //   depisitorMintBAccount = getAssociatedTokenAddressSync(
-    //     mintBKp.publicKey,
-    //     depositor.publicKey,
-    //     false
-    //   );
+      depisitorMintBAccount = getAssociatedTokenAddressSync(
+        mintBKp.publicKey,
+        depositor.publicKey,
+        false
+      );
     });
-    // it("deposit-liquidity - 1", async () => {
-    //     const amountA = new BN(100 * 10 ** mintADecimals);
-    //     const amountB = new BN(200 * 10 ** mintBDecimals);
-    
-    //     const tx = await program.methods
-    //       .depositLiquidity(amountA, amountB)
-    //       .accounts({
-    //         pool: poolPda,
-    //         poolAuthority: poolAuthorityPda,
-    //         mintLiquidity: mintLiquidityPda,
-    //         mintA: mintAKp.publicKey,
-    //         mintB: mintBKp.publicKey,
-    //         poolAccountA: poolAccountA,
-    //         poolAccountB: poolAccountB,
-    //         depositorAccountLiquidity: depisitorLPAccount,
-    //         depositorAccountA: depisitorMintAAccount,
-    //         depositorAccountB: depisitorMintBAccount,
-    //         depositor: depositor.publicKey,
-    
-    //         tokenProgram: TOKEN_PROGRAM_ID,
-    //         associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
-    //         systemProgram: anchor.web3.SystemProgram.programId,
-    //       })
-    //       .signers([depositor])
-    //       .rpc();
-    
-    //     console.log("Your transaction signature", tx);
-    
-    //     assert(1 == 1, "ngon");
-    
-    //     const poolATokenAccount = await getAccount(
-    //       provider.connection,
-    //       poolAccountA
-    //     );
-    
-    //     const poolBTokenAccount = await getAccount(
-    //       provider.connection,
-    //       poolAccountB
-    //     );
-    
-    //     const depisitorLP = await getAccount(
-    //       provider.connection,
-    //       depisitorLPAccount
-    //     );
-    
-    //     assert(
-    //       poolATokenAccount.amount.toString() == amountA.toString(),
-    //       "Correct token A"
-    //     );
-    
-    //     assert(
-    //       poolBTokenAccount.amount.toString() == amountB.toString(),
-    //       "Correct token B"
-    //     );
-    
-    //     assert(depisitorLP.amount > 0, "Correct LP");
-    //   });
-    
-    //   it("deposit-liquidity - 2", async () => {
-    //     try {
-    //         await getAccount(provider.connection, depisitorLPAccount);
-    //         console.log("Depositor LP account exists");
-    //       } catch (error) {
-    //         if (error.message.includes("Failed to find account")) {
-    //           console.error("Depositor LP account does not exist");
-    //         } else {
-    //           throw error;
-    //         }
-    //       }
-    //     const amountA = new BN(10 * 10 ** mintADecimals);
-    //     const amountB = new BN(30 * 10 ** mintBDecimals);
-    
-    //     const tx = await program.methods
-    //       .depositLiquidity(amountA, amountB)
-    //       .accounts({
-    //         // pool: poolAuthorityPda,
-    //         pool: poolPda,
-    //         poolAuthority: poolAuthorityPda,
-    //         mintLiquidity: mintLiquidityPda,
-    //         mintA: mintAKp.publicKey,
-    //         mintB: mintBKp.publicKey,
-    //         poolAccountA: poolAccountA,
-    //         poolAccountB: poolAccountB,
-    //         depositorAccountLiquidity: depisitorLPAccount,
-    //         depositorAccountA: depisitorMintAAccount,
-    //         depositorAccountB: depisitorMintBAccount,
-    //         depositor: depositor.publicKey,
-    
-    //         tokenProgram: TOKEN_PROGRAM_ID,
-    //         associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
-    //         systemProgram: anchor.web3.SystemProgram.programId,
-    //       })
-    //       .signers([depositor])
-    //       .rpc();
-    
-    //     console.log("Your transaction signature", tx);
-    //   });
     
   it("withdraw-liquidity - 1", async () => {
-    // const amountA = new BN(10 * 10 ** mintADecimals);
-    // const amountB = new BN(30 * 10 ** mintBDecimals);
-    // const tx = await program.methods
-    // .depositLiquidity(amountA, amountB)
-    // .accounts({
-    //   // pool: poolAuthorityPda,
-    //   pool: poolPda,
-    //   poolAuthority: poolAuthorityPda,
-    //   mintLiquidity: mintLiquidityPda,
-    //   mintA: mintAKp.publicKey,
-    //   mintB: mintBKp.publicKey,
-    //   poolAccountA: poolAccountA,
-    //   poolAccountB: poolAccountB,
-    //   depositorAccountLiquidity: depisitorLPAccount,
-    //   depositorAccountA: depisitorMintAAccount,
-    //   depositorAccountB: depisitorMintBAccount,
-    //   depositor: depositor.publicKey,
+    const amountA = new BN(10 * 10 ** mintADecimals);
+    const amountB = new BN(30 * 10 ** mintBDecimals);
+    const tx = await program.methods
+    .depositLiquidity(amountA, amountB)
+    .accounts({
+      // pool: poolAuthorityPda,
+      pool: poolPda,
+      poolAuthority: poolAuthorityPda,
+      mintLiquidity: mintLiquidityPda,
+      mintA: mintAKp.publicKey,
+      mintB: mintBKp.publicKey,
+      poolAccountA: poolAccountA,
+      poolAccountB: poolAccountB,
+      depositorAccountLiquidity: depisitorLPAccount,
+      depositorAccountA: depisitorMintAAccount,
+      depositorAccountB: depisitorMintBAccount,
+      depositor: depositor.publicKey,
 
-    //   tokenProgram: TOKEN_PROGRAM_ID,
-    //   associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
-    //   systemProgram: anchor.web3.SystemProgram.programId,
-    // })
-    // .signers([depositor])
-    // .rpc();
-    // const lpAmount = new BN(10); // Assuming 6 decimals for LP token
+      tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    })
+    .signers([depositor])
+    .rpc();
+    const lpAmount = new BN(10); // Assuming 6 decimals for LP token
 
-    // const tx2 = await program.methods
-    //   .withdrawLiquidity(lpAmount)
-    //   .accounts({
-    //     pool: poolPda,
-    //     poolAuthority: poolAuthorityPda,
-    //     mintLiquidity: mintLiquidityPda,
-    //     mintA: mintAKp.publicKey,
-    //     mintB: mintBKp.publicKey,
-    //     poolAccountA: poolAccountA,
-    //     poolAccountB: poolAccountB,
-    //     depositorAccountA: depisitorMintAAccount,
-    //     depositorAccountLiquidity: depisitorLPAccount,
-    //     depositorAccountB: depisitorMintBAccount,
-    //     depositor: depositor.publicKey,
+    const tx2 = await program.methods
+      .withdrawLiquidity(lpAmount)
+      .accounts({
+        pool: poolPda,
+        poolAuthority: poolAuthorityPda,
+        mintLiquidity: mintLiquidityPda,
+        mintA: mintAKp.publicKey,
+        mintB: mintBKp.publicKey,
+        poolAccountA: poolAccountA,
+        poolAccountB: poolAccountB,
+        depositorAccountA: depisitorMintAAccount,
+        depositorAccountLiquidity: depisitorLPAccount,
+        depositorAccountB: depisitorMintBAccount,
+        depositor: depositor.publicKey,
 
-    //     tokenProgram: TOKEN_PROGRAM_ID,
-    //     associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
-    //     systemProgram: anchor.web3.SystemProgram.programId,
-    //   })
-    //   .signers([depositor])
-    //   .rpc();
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([depositor])
+      .rpc();
 
-    // console.log("Your transaction signature", tx2);
+    console.log("Your transaction signature", tx2);
 
-    // // Add assertions to verify the state after withdrawal
-    // const depositorAccountAInfo = await getAccount(provider.connection, depisitorMintAAccount);
-    // const depositorAccountBInfo = await getAccount(provider.connection, depisitorMintBAccount);
+    // Add assertions to verify the state after withdrawal
+    const depositorAccountAInfo = await getAccount(provider.connection, depisitorMintAAccount);
+    const depositorAccountBInfo = await getAccount(provider.connection, depisitorMintBAccount);
 
-    // console.log("Depositor account A", depositorAccountAInfo.amount);
-    // console.log("Depositor account B", depositorAccountBInfo.amount);
-    // assert(depositorAccountAInfo.amount > 0, "Depositor should have received token A");
-    // assert(depositorAccountBInfo.amount > 0, "Depositor should have received token B");
+    console.log("Depositor account A", depositorAccountAInfo.amount);
+    console.log("Depositor account B", depositorAccountBInfo.amount);
+    assert(depositorAccountAInfo.amount > 0, "Depositor should have received token A");
+    assert(depositorAccountBInfo.amount > 0, "Depositor should have received token B");
   });
 });
